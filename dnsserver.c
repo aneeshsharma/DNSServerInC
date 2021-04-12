@@ -36,7 +36,8 @@ int main()
         exit(EXIT_FAILURE);
     }
 
-    int len, recv_len;
+    socklen_t len;
+    int recv_len;
 
     len = sizeof(client_address);
 
