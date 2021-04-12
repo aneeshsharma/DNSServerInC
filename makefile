@@ -1,7 +1,15 @@
 CC = gcc
+C_SRCS := $(wildcard *.c)
+C_OBJS := $(C_SRCS:.c=.o)
 
-dnsserver.o: dnsserver.c
-	gcc dnsserver.c -o dnsserver.o
+TARGET := DNSServer
+
+all: $(TARGET)
+$(TARGET): $(C_OBJS)
+	$(CC) $^ -o $@
+
+%.o:%.c
+	$(CC) -c $^ -o $@
 
 clean:
-	rm *.o *.out
+	rm $(TARGET) $(C_OBJS)
