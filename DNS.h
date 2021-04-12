@@ -65,6 +65,7 @@ typedef struct DNSPreamble DNSPreamble;
 typedef struct DNSRecord DNSRecord;
 typedef struct DNSPacket DNSPacket;
 
+void getDNSHeader(char* buffer, DNSPacket* packet);
 DNSPacket* getDNSPacket(char* buffer, size_t size);
 
 char* writeDNSPacket(DNSPacket* packet, size_t* len);

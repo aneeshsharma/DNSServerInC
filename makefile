@@ -4,7 +4,10 @@ C_OBJS := $(C_SRCS:.c=.o)
 
 TARGET := DNSServer
 
-all: $(TARGET)
+all: build
+
+build: $(TARGET)
+
 $(TARGET): $(C_OBJS)
 	$(CC) $^ -o $@
 
@@ -12,4 +15,4 @@ $(TARGET): $(C_OBJS)
 	$(CC) -c $^ -o $@
 
 clean:
-	rm $(TARGET) $(C_OBJS)
+	rm -vf $(TARGET) $(C_OBJS)
