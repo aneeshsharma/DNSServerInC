@@ -109,22 +109,21 @@ DNSRecord* getRecord(char* buffer, int* index, size_t size) {
         record->data[i] = buffer[*index + i];
     }
 
+    record->IP = 0;
+    record->IPv6 = 0;
+    record->ns = NULL;
+    record->cname = NULL;
+
     if (record->type == TYPE_NS) {
         int n_index = *index;
         record->ns = getLabel(buffer, &n_index, size);
-    }
-    
-    if (record->type == TYPE_CNAME) {
+    } else if (record->type == TYPE_CNAME) {
         int n_index = *index;
         record->cname = getLabel(buffer, &n_index, size);
-    }
-    record->IP = 0;
-    record->IPv6 = 0;
-
-    if (record->len == 4) {
+    } else if (record->type == TYPE_A) {
         record->IP = getDoubleWord(buffer + *index);
-    } else if (record->len == 8) {
-        record->IPv6 = getDoubleWord(buffer + *index);
+    } else if (record->type == TYPE_AAAA) {
+        record->IPv6 = getQuadWord(buffer + *index);
     }
 
     *index += record->len;

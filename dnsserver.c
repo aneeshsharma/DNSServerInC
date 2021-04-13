@@ -10,7 +10,6 @@
 #include "DNS.h"
 
 #define PORT 7000
-#define BUFFER_SIZE 1024
 
 void hr() {
     for (int i = 0; i < 50; i++) {
@@ -24,7 +23,7 @@ int main()
     int sock_fd;
     char buffer[BUFFER_SIZE];
 
-    struct sockaddr_in server_address, client_address;
+    struct sockaddr_in server_address, client_address, dns_address;
 
     if ((sock_fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
     {
@@ -61,6 +60,15 @@ int main()
         
         printDNS(packet);
         hr();
+
+        printf("creating reply\n");
+
+        size_t size;
+        char* response = writeDNSPacket(packet, &size);
+
+        sendto(sock_fd, (char*) response, BUFFER_SIZE, MSG_CONFIRM, (struct sockaddr*)&client_address, len);
+
+        free(response);
     }
     return 0;
 }

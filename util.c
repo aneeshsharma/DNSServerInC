@@ -39,4 +39,18 @@ uint64_t getQuadWord(char* address) {
     return a << 32 | b;
 }
 
+void writeWord(char* buffer, uint16_t word) {
+    *(buffer) = (char) ((word & 0xff00) >> 8);
+    *(buffer + 1) = (char) (word & 0xff);
+}
+
+void writeDoubleWord(char* buffer, uint32_t word) {
+    writeWord(buffer, ((word & 0xffff0000) >> 16));
+    writeWord(buffer + 2, ((word & 0xffff)));
+}
+
+void writeQuadWord(char* buffer, uint64_t word) {
+    writeDoubleWord(buffer, ((word & 0xffffffff00000000) >> 32));
+    writeDoubleWord(buffer + 4, ((word & 0xffffffff)));
+}
 

@@ -74,10 +74,15 @@ typedef struct DNSRecord DNSRecord;
 typedef struct DNSPacket DNSPacket;
 
 // Utility functions
-uint16_t getWord(char* address);
 uint8_t getBits(uint8_t data, int start, int end);
-uint32_t getDoubleWord(char* address);
 
+uint16_t getWord(char* address);
+uint32_t getDoubleWord(char* address);
+uint64_t getQuadWord(char* address);
+
+void writeWord(char* buffer, uint16_t word); 
+void writeDoubleWord(char* buffer, uint32_t word);
+void writeQuadWord(char* buffer, uint64_t word);
 
 // Decoding functions
 void getDNSHeader(char* buffer, DNSPacket* packet);
@@ -99,7 +104,7 @@ void printDNS(DNSPacket* packet);
 // Encoding functions
 void writeLabels(LabelSequence* labels, char* buffer, int* index, size_t size);
 void writeHeader(DNSPacket* packet, char* buffer, int* index, size_t size);
-void writeQuestion(DNSQuestion* packet, char* buffer, int* index, size_t size);
+void writeQuestion(DNSQuestion* question, char* buffer, int* index, size_t size);
 void writeRecord(DNSRecord* record, char* buffer, int* index, size_t size);
 char* writeDNSPacket(DNSPacket* packet, size_t* size); 
 
