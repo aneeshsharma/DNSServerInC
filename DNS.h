@@ -84,6 +84,8 @@ void writeWord(char* buffer, uint16_t word);
 void writeDoubleWord(char* buffer, uint32_t word);
 void writeQuadWord(char* buffer, uint64_t word);
 
+int getLength(LabelSequence* label); 
+
 // Decoding functions
 void getDNSHeader(char* buffer, DNSPacket* packet);
 LabelSequence* getLabel(char* buffer, int* index, size_t size);
@@ -103,6 +105,9 @@ void printDNS(DNSPacket* packet);
 
 // Encoding functions
 void writeLabels(LabelSequence* labels, char* buffer, int* index, size_t size);
+
+void setRecordDataSize(DNSRecord* record);
+
 void writeHeader(DNSPacket* packet, char* buffer, int* index, size_t size);
 void writeQuestion(DNSQuestion* question, char* buffer, int* index, size_t size);
 void writeRecord(DNSRecord* record, char* buffer, int* index, size_t size);

@@ -64,9 +64,24 @@ void writeQuestion(DNSQuestion* question, char* buffer, int* index, size_t size)
     }
 }
 
+
+void setRecordDataSize(DNSRecord* record) {
+    if (record->type == TYPE_A) {
+        record->len = 4;
+    } else if (record->type == TYPE_AAAA) {
+        record->len = 8;
+    } else if (record->type == TYPE_CNAME) {
+        record->len = getLength(record->cname);
+    } else if (record->type == TYPE_NS) {
+        record->len = getLength(record->ns);
+    }
+}
+
 void writeRecord(DNSRecord* record, char* buffer, int* index, size_t size) {
     while(record) {
         int i = *index;
+
+        setRecordDataSize(record);
 
         writeLabels(record->labels, buffer, &i, size);
 
@@ -92,6 +107,9 @@ void writeRecord(DNSRecord* record, char* buffer, int* index, size_t size) {
             writeLabels(record->ns, buffer, &i, size);
         } else if (record->type == TYPE_CNAME) {
             writeLabels(record->cname, buffer, &i, size);
+        } else {
+            strncpy(buffer + i, (char*) record->data, record->len);
+            i += record->len;
         }
 
         *index = i;
@@ -99,12 +117,71 @@ void writeRecord(DNSRecord* record, char* buffer, int* index, size_t size) {
     }
 }
 
+int checkRecordList(DNSRecord** record) { 
+    printf("Checking...\n");
+    int count = 0;
+    DNSRecord* curr = *record;
+    if (!curr)
+        return 0;
+    int flag = 0;
+    while (curr->next) {
+        flag = 0;
+        printf("Record type: %d\n", curr->next->type);
+        if (curr->next->type == TYPE_AAAA)
+            flag = 1;
+
+        if (curr->next->type == TYPE_A)
+            flag = 1;
+
+        if (curr->next->type == TYPE_CNAME)
+            flag = 1;
+
+        if (curr->next->type == TYPE_NS)
+            flag = 1;
+        
+        if (!flag)
+            curr->next = curr->next->next;
+        else
+            count++;
+
+        curr = curr->next;
+    }
+
+    curr = *record;
+    flag = 0;
+    if (curr->type == TYPE_AAAA)
+        flag = 1;
+
+    if (curr->type == TYPE_A)
+        flag = 1;
+
+    if (curr->type == TYPE_CNAME)
+        flag = 1;
+
+    if (curr->type == TYPE_NS)
+        flag = 1;
+
+    if (!flag)
+        *record = curr->next;
+    else
+        count++;
+
+    return count;
+}
+
+void checkRecords(DNSPacket* packet) {
+    packet->header.ANCOUNT = checkRecordList(&packet->answer);
+    packet->header.NSCOUNT = checkRecordList(&packet->authority);
+    packet->header.ARCOUNT = checkRecordList(&packet->additional);
+}
+
 char* writeDNSPacket(DNSPacket* packet, size_t* size) {
+    //checkRecords(packet);
+
     char* buffer = (char*) calloc(BUFFER_SIZE, sizeof(char));
-    *size = BUFFER_SIZE;
 
     int index = 0;
-    
+
     writeHeader(packet, buffer, &index, BUFFER_SIZE);
 
     writeQuestion(packet->question, buffer, &index, BUFFER_SIZE);
@@ -112,6 +189,8 @@ char* writeDNSPacket(DNSPacket* packet, size_t* size) {
     writeRecord(packet->answer, buffer, &index, BUFFER_SIZE);
     writeRecord(packet->authority, buffer, &index, BUFFER_SIZE);
     writeRecord(packet->additional, buffer, &index, BUFFER_SIZE);
+
+    *size = index + 1;
 
     return buffer;
 }

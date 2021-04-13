@@ -54,3 +54,8 @@ void writeQuadWord(char* buffer, uint64_t word) {
     writeDoubleWord(buffer + 4, ((word & 0xffffffff)));
 }
 
+int getLength(LabelSequence* label) {
+    if (!label)
+        return 1;
+    return label->length + 1 + getLength(label->next);
+}
