@@ -4,43 +4,6 @@
 #include <stdio.h>
 #include <string.h>
 
-uint8_t getBits(uint8_t data, int start, int end) {
-    uint8_t mask = 0;
-    for (int i = 0; i < 8; i++) {
-        if (i <= start && i >= end) {
-            mask |= 1 << i;
-        }
-    }
-
-    uint8_t digits = data & mask;
-
-    return digits >> end;
-}
-
-uint16_t getWord(char* address) {
-    uint16_t a = *address;
-    uint16_t b = *(address + 1);
-    a &= 0xff;
-    b &= 0xff;
-    return a << 8 | b;
-}
-
-uint32_t getDoubleWord(char* address) {
-    uint32_t a = getWord(address);
-    uint32_t b = getWord(address + 2);
-    a &= 0xffff;
-    b &= 0xffff;
-    return a << 16 | b;
-}
-
-uint64_t getQuadWord(char* address) {
-    uint64_t a = getDoubleWord(address);
-    uint64_t b = getDoubleWord(address + 4);
-    a &= 0xffffffff;
-    b &= 0xffffffff;
-    return a << 32 | b;
-}
-
 void getDNSHeader(char* buffer, DNSPacket* packet) {
     packet->header.ID = getWord(buffer);
     
@@ -65,12 +28,7 @@ void getDNSHeader(char* buffer, DNSPacket* packet) {
     packet->authority = NULL;
 }
 
-void printLabels(LabelSequence* labels) {
-    if (!labels)
-        return;
-    printf("%s.", labels->label);
-    printLabels(labels->next);
-}
+
 
 LabelSequence* getLabel(char* buffer, int* index, size_t size) {
     int n = *(buffer + *index);
@@ -238,81 +196,4 @@ DNSPacket* getDNSPacket(char* buffer, size_t size) {
     return packet;
 }
 
-void printIP(DNSRecord* record) {
-    uint8_t a = *(record->data);
-    uint8_t b = *(record->data + 1);
-    uint8_t c = *(record->data + 2);
-    uint8_t d = *(record->data + 3);
-    printf("%u.%u.%u.%u", a, b, c, d);
-}
-
-void printIP6(DNSRecord* record) {
-    printf("%x %x", getDoubleWord((char*) record->data), getDoubleWord((char*) record->data + 4));
-}
-
-void printRecord(DNSRecord* record) {
-    if (!record)
-        return;
-    if (record->type == TYPE_A) {
-        printLabels(record->labels);
-        printf("\tA\t");
-        printIP(record);
-        printf("\n");
-    } else if (record->type == TYPE_NS){
-        printLabels(record->labels);
-        printf("\tNS\t");
-        printLabels(record->ns);
-        printf("\n");
-    } else if (record->type == TYPE_CNAME) {
-        printLabels(record->labels);
-        printf("\tCNAME\t");
-        printf("\n");
-    } else if (record->type == TYPE_AAAA) {
-        printLabels(record->labels);
-        printf("\tAAAA\t");
-        printIP6(record);
-        printf("\n");
-    } else {
-        printf("UNKNOWN RECORD TYPE %d\n", record->type);
-    } 
-}
-
-void printDNS(DNSPacket* packet) {
-    printf("DNS Packet\n");
-    printf("Header\n");
-    printf("ID\t-\t%x\n", packet->header.ID);
-    printf("QDCOUNT\t-\t%d\n", packet->header.QDCOUNT);
-    printf("ANCOUNT\t-\t%d\n", packet->header.ANCOUNT);
-    printf("NSCOUNT\t-\t%d\n", packet->header.NSCOUNT);
-    printf("ARCOUNT\t-\t%d\n", packet->header.ARCOUNT);
-
-    printf("\nQuestions-\n");
-    DNSQuestion* q = packet->question;
-    while (q) {
-        printLabels(q->labels);
-        printf("\n");
-        q = q->next;
-    }
-
-    printf("\nAnswers-\n");
-    DNSRecord* ans = packet->answer;
-    while (ans) {
-        printRecord(ans);
-        ans = ans->next;
-    }
-
-    printf("\nAuthority-\n");
-    ans = packet->authority;
-    while (ans) {
-        printRecord(ans);
-        ans = ans->next;
-    }
-
-    printf("\nAdditional-\n");
-    ans = packet->additional;
-    while (ans) {
-        printRecord(ans);
-        ans = ans->next;
-    }
-}
 

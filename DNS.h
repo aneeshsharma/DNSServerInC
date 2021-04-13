@@ -74,7 +74,7 @@ typedef struct DNSPacket DNSPacket;
 uint16_t getWord(char* address);
 uint8_t getBits(uint8_t data, int start, int end);
 uint32_t getDoubleWord(char* address);
-void printLabels(LabelSequence* labels);
+
 
 void getDNSHeader(char* buffer, DNSPacket* packet);
 LabelSequence* getLabel(char* buffer, int* index, size_t size);
@@ -86,7 +86,12 @@ DNSQuestion* getQuestionList(char* buffer, int* index, size_t n, size_t size);
 
 DNSPacket* getDNSPacket(char* buffer, size_t size);
 
+void printLabels(LabelSequence* labels);
+void printIP(DNSRecord* record);
+void printIP6(DNSRecord* record); 
+void printRecord(DNSRecord* record); 
 void printDNS(DNSPacket* packet); 
+
 
 char* writeDNSPacket(DNSPacket* packet, size_t* len);
 
