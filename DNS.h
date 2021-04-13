@@ -65,7 +65,15 @@ typedef struct DNSPreamble DNSPreamble;
 typedef struct DNSRecord DNSRecord;
 typedef struct DNSPacket DNSPacket;
 
+// Convert a big endian 2-byte number to uint16_t
+uint16_t getWord(char* address);
+uint8_t getBits(uint8_t data, int start, int end);
+void printLabels(LabelSequence* labels);
+
 void getDNSHeader(char* buffer, DNSPacket* packet);
+LabelSequence* getLabel(char* buffer, int* index, size_t size);
+DNSQuestion* getQuestion(char* buffer, int* index, size_t size);
+
 DNSPacket* getDNSPacket(char* buffer, size_t size);
 
 char* writeDNSPacket(DNSPacket* packet, size_t* len);

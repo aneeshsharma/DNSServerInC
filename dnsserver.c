@@ -7,6 +7,8 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 
+#include "DNS.h"
+
 #define PORT 7000
 #define BUFFER_SIZE 1024
 
@@ -48,11 +50,14 @@ int main()
 
         buffer[recv_len] = '\0';
 
-        printf("Message received: %s\n", buffer);
+        DNSPacket* packet = getDNSPacket(buffer, recv_len);
 
-        sendto(sock_fd, (const char *)buffer, strlen(buffer), MSG_CONFIRM, (const struct sockaddr *)&client_address, len);
-
-        printf("Server response sent!\n");
+        printf("Id: %x\n", packet->header.ID);
+        printf("QDCOUNT - %x\n", packet->header.QDCOUNT);
+        printf("RD - %x\n", packet->header.RD);
+        printf("Z - %x\n", packet->header.Z);
+        
+        printLabels(packet->question->labels);
     }
     return 0;
 }
