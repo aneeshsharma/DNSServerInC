@@ -6,6 +6,9 @@ TARGET := DNSServer
 
 all: build
 
+debug: build
+	./$(TARGET)
+
 build: $(TARGET)
 
 $(TARGET): $(C_OBJS)

@@ -12,6 +12,13 @@
 #define PORT 7000
 #define BUFFER_SIZE 1024
 
+void hr() {
+    for (int i = 0; i < 50; i++) {
+        printf("-");
+    }
+    printf("\n");
+}
+
 int main()
 {
     int sock_fd;
@@ -51,13 +58,9 @@ int main()
         buffer[recv_len] = '\0';
 
         DNSPacket* packet = getDNSPacket(buffer, recv_len);
-
-        printf("Id: %x\n", packet->header.ID);
-        printf("QDCOUNT - %x\n", packet->header.QDCOUNT);
-        printf("RD - %x\n", packet->header.RD);
-        printf("Z - %x\n", packet->header.Z);
         
-        printLabels(packet->question->labels);
+        printDNS(packet);
+        hr();
     }
     return 0;
 }

@@ -5,6 +5,11 @@
 #ifndef __DNS_H
 #define __DNS_H
 
+#define TYPE_NS     2
+#define TYPE_A      1
+#define TYPE_CNAME  5
+#define TYPE_AAAA   28
+
 struct DNSHeader {
     uint16_t    ID;
     
@@ -36,18 +41,19 @@ struct DNSQuestion {
     struct DNSQuestion*     next;
 };
 
-struct DNSPreamble {
+struct DNSRecord {
     struct LabelSequence*   labels;
     uint16_t                type;
     uint16_t                _class;
     uint32_t                TTL;
     uint16_t                len;
-};
 
-struct DNSRecord {
-    struct DNSPreamble  preamble;
-    uint32_t            IP;
-    struct DNSRecord*   next;
+    uint8_t*                data;
+    struct LabelSequence*   ns;
+    struct LabelSequence*   cname;
+    uint32_t                IP;
+    uint64_t                IPv6;
+    struct DNSRecord*       next;
 };
 
 struct DNSPacket {
@@ -61,20 +67,26 @@ struct DNSPacket {
 typedef struct DNSHeader DNSHeader;
 typedef struct LabelSequence LabelSequence;
 typedef struct DNSQuestion DNSQuestion;
-typedef struct DNSPreamble DNSPreamble;
 typedef struct DNSRecord DNSRecord;
 typedef struct DNSPacket DNSPacket;
 
 // Convert a big endian 2-byte number to uint16_t
 uint16_t getWord(char* address);
 uint8_t getBits(uint8_t data, int start, int end);
+uint32_t getDoubleWord(char* address);
 void printLabels(LabelSequence* labels);
 
 void getDNSHeader(char* buffer, DNSPacket* packet);
 LabelSequence* getLabel(char* buffer, int* index, size_t size);
 DNSQuestion* getQuestion(char* buffer, int* index, size_t size);
 
+DNSRecord* getRecordList(char* buffer, int* index, size_t n, size_t size); 
+DNSQuestion* getQuestionList(char* buffer, int* index, size_t n, size_t size);
+
+
 DNSPacket* getDNSPacket(char* buffer, size_t size);
+
+void printDNS(DNSPacket* packet); 
 
 char* writeDNSPacket(DNSPacket* packet, size_t* len);
 
