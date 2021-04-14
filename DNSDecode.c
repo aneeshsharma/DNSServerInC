@@ -140,9 +140,13 @@ DNSRecord* getRecordList(char* buffer, int* index, size_t n, size_t size) {
     for (int i = 0; i < n; i++) {
         if (!flag) {
             result = getRecord(buffer, index, size);
+            if (*index > size)
+                return NULL;
             record = result;
             flag = 1;
         } else {
+            if (*index > size)
+                return NULL;
             record->next = getRecord(buffer, index, size);
             record = record->next;
         }
@@ -163,9 +167,13 @@ DNSQuestion* getQuestionList(char* buffer, int* index, size_t n, size_t size) {
     for (int i = 0; i < n; i++) {
         if (!flag) {
             result = getQuestion(buffer, index, size);
+            if (*index > size)
+                return NULL;
             question = result;
             flag = 1;
         } else {
+            if (*index > size)
+                return NULL;
             question->next = getQuestion(buffer, index, size);
             question = question->next;
         }
@@ -177,7 +185,20 @@ DNSQuestion* getQuestionList(char* buffer, int* index, size_t n, size_t size) {
 DNSPacket* getDNSPacket(char* buffer, size_t size) {
     DNSPacket* packet = (DNSPacket *) malloc(sizeof(DNSPacket));
     
-    getDNSHeader(buffer, packet);
+    getDNSHeader(buffer, packet); 
+
+    int flag = 0;
+    if (packet->header.QDCOUNT > 32)
+        flag = 1;
+    if (packet->header.ANCOUNT > 32)
+        flag = 1;
+    if (packet->header.NSCOUNT > 32)
+        flag = 1;
+    if (packet->header.ARCOUNT > 32)
+        flag = 1;
+    if (flag) {
+        return NULL;
+    }
     // Start decoding after header
     // Header size is 12 bytes
     int index = 12;

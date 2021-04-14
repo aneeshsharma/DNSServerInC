@@ -70,40 +70,21 @@ int main()
 
         DNSPacket* packet = getDNSPacket(buffer, recv_len);
         
-        printDNS(packet);
+        DNSPacket* response = resolve(packet);
+
+        char* response_buffer;
+        size_t len;
+
+        response_buffer = writeDNSPacket(response, &len);
+      
+        FILE* dump = fopen("dump.bin", "wb");
+
+        fwrite(response_buffer, sizeof(char), len, dump);
+
+        fclose(dump);
+
+        sendto(sock_fd, (char*) response_buffer, len, MSG_CONFIRM, (struct sockaddr*)&client_address, sizeof(client_address));
         hr();
-
-        printf("Rencoding...\n");
-        size_t size;
-        char* response = writeDNSPacket(packet, &size);
-
-        printf("Querying DNS...\n");
-        sendto(dns_fd, (char*)response, BUFFER_SIZE, MSG_CONFIRM, (struct sockaddr*)&dns_address, sizeof(dns_address));
-
-        free(response);
-
-        printf("Query sent\n");
-        recv_len = recvfrom(dns_fd, (char*)buffer, BUFFER_SIZE, MSG_WAITALL, (struct sockaddr*)&dns_address, &len);
-
-        buffer[recv_len] = '\0';
-
-        printf("Received response\n");
-
-        DNSPacket* packet2 = getDNSPacket(buffer, recv_len);
-
-        printDNS(packet2);
-        hr();
-
-        printf("Rencoding...\n");
-        size_t size2;
-        response = writeDNSPacket(packet2, &size2);
-
-        printDNS(packet2);
-
-        printf("Sending response...\n");
-        sendto(sock_fd, response, size2, MSG_CONFIRM, (struct sockaddr*)&client_address, sizeof(client_address));
-
-        free(response);
     }
     return 0;
 }

@@ -1,6 +1,9 @@
 #include "DNS.h"
 #include <stdint.h>
 #include <bits/stdint-uintn.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
 uint8_t getBits(uint8_t data, int start, int end) {
     uint8_t mask = 0;
@@ -58,4 +61,41 @@ int getLength(LabelSequence* label) {
     if (!label)
         return 1;
     return label->length + 1 + getLength(label->next);
+}
+
+void getLabelString(LabelSequence* labels, char* buffer) {
+    if (!labels)
+        return;
+    while(labels->next) {
+        buffer += sprintf(buffer, "%s.", labels->label);
+        labels = labels->next;
+    }
+
+    sprintf(buffer, "%s", labels->label);
+}
+
+void getIPString(uint8_t* IP, char* str) {
+    uint8_t a = *(IP);
+    uint8_t b = *(IP + 1);
+    uint8_t c = *(IP + 2);
+    uint8_t d = *(IP + 3);
+    sprintf(str, "%u.%u.%u.%u", a, b, c, d);
+}
+
+void IPStringToBinary(char* str, uint8_t* IP) {
+    uint8_t num = 0;
+    int j = 0;
+    char data[20];
+    strcpy(data, str);
+    strcat(data, ".");
+    for (int i = 0; i < 4; i++) {
+        num = 0;
+        while(data[j] != '.') {
+            num *= 10;
+            num += data[j] - '0';
+            j++;
+        }
+        *(IP + i) = num;
+        j++;
+    }
 }
