@@ -20,7 +20,9 @@ void printIP(DNSRecord* record) {
 }
 
 void printIP6(DNSRecord* record) {
-    printf("%x %x", getDoubleWord((char*) record->data), getDoubleWord((char*) record->data + 4));
+    for (int i = 0; i < 16; i += 2) {
+        printf("%x:", getWord((char*)record->data + i));
+    }
 }
 
 void printRecord(DNSRecord* record) {
@@ -64,6 +66,7 @@ void printDNS(DNSPacket* packet) {
     DNSQuestion* q = packet->question;
     while (q) {
         printLabels(q->labels);
+        printf("\t%d\t", q->type);
         printf("\n");
         q = q->next;
     }

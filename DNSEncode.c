@@ -69,7 +69,7 @@ void setRecordDataSize(DNSRecord* record) {
     if (record->type == TYPE_A) {
         record->len = 4;
     } else if (record->type == TYPE_AAAA) {
-        record->len = 8;
+        record->len = 16;
     } else if (record->type == TYPE_CNAME) {
         record->len = getLength(record->cname);
     } else if (record->type == TYPE_NS) {
@@ -101,8 +101,9 @@ void writeRecord(DNSRecord* record, char* buffer, int* index, size_t size) {
             writeDoubleWord(buffer + i, record->IP);
             i += 4;
         } else if (record->type == TYPE_AAAA) {
-            writeQuadWord(buffer + i, record->IPv6);
-            i += 8;
+            record->len = 16;
+            strncpy(buffer + i, (char*) record->data, record->len);
+            i += record->len;
         } else if (record->type == TYPE_NS) {
             writeLabels(record->ns, buffer, &i, size);
         } else if (record->type == TYPE_CNAME) {

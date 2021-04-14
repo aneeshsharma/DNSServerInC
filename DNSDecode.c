@@ -121,9 +121,7 @@ DNSRecord* getRecord(char* buffer, int* index, size_t size) {
         int n_index = *index;
         record->cname = getLabel(buffer, &n_index, size);
     } else if (record->type == TYPE_A) {
-        record->IP = getDoubleWord(buffer + *index);
-    } else if (record->type == TYPE_AAAA) {
-        record->IPv6 = getQuadWord(buffer + *index);
+        record->IP = getDoubleWord(buffer + *index); 
     }
 
     *index += record->len;
