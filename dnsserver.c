@@ -63,7 +63,7 @@ int main()
 
     while (1)
     {
-        printf("Waiting\n");
+        printf("Waiting for query...\n");
         recv_len = recvfrom(sock_fd, (char *)buffer, BUFFER_SIZE, MSG_WAITALL, (struct sockaddr*)&client_address, &len);
 
         buffer[recv_len] = '\0';
